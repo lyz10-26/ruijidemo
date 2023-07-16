@@ -13,6 +13,8 @@ import com.example.ruijidemo.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +35,7 @@ public class SetmealController {
 
 
     @PostMapping
+    @CacheEvict(value = "setmealCache",allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         log.info(setmealDto.toString());
         setmealService.saveWithDish(setmealDto);
@@ -73,15 +76,16 @@ public class SetmealController {
     }
 
     @DeleteMapping
-    public R<String> delete(@RequestParam List<Long> ids){
+    @CacheEvict(value = "setmealCache",allEntries = true)
+    public R<String> delete(@RequestParam List<Long> ids) {
         setmealService.removeWithDish(ids);
         return R.success("成功");
 
     }
 
     @PostMapping("/status/{status}")
-    public R<String> sale(@PathVariable int status,String[] ids){
-        for (String id:ids){
+    public R<String> sale(@PathVariable int status, String[] ids) {
+        for (String id : ids) {
             Setmeal setmeal = setmealService.getById(id);
             setmeal.setStatus(status);
             setmealService.updateById(setmeal);
@@ -91,11 +95,12 @@ public class SetmealController {
 
 
     @GetMapping("/list")
-    public R<List<Setmeal>> list( Setmeal setmeal){
-        LambdaQueryWrapper<Setmeal> lambdaQueryWrapper=new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(setmeal.getCategoryId()!=null,Setmeal::getCategoryId,setmeal.getCategoryId());
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId+'_'+#setmeal.status")
+    public R<List<Setmeal>> list(Setmeal setmeal) {
+        LambdaQueryWrapper<Setmeal> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId());
 
-        lambdaQueryWrapper.eq(setmeal.getStatus()!=null,Setmeal::getStatus,setmeal.getStatus());
+        lambdaQueryWrapper.eq(setmeal.getStatus() != null, Setmeal::getStatus, setmeal.getStatus());
 
         lambdaQueryWrapper.orderByDesc(Setmeal::getUpdateTime);
         List<Setmeal> list = setmealService.list(lambdaQueryWrapper);
