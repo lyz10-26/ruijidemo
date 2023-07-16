@@ -12,7 +12,7 @@
     <artifactId>ruijidemo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ruijidemo</name>
-    <description>瑞吉</description>
+    <description>瑞吉外卖项目</description>
     <properties>
         <java.version>11</java.version>
     </properties>
@@ -33,6 +33,11 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.5.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>3.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
